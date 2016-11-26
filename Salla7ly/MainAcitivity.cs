@@ -1,0 +1,335 @@
+using Android.App;
+using Android.Content;
+using Android.Media;
+using Android.Net;
+using Android.OS;
+using Android.Views;
+using Android.Views.InputMethods;
+using Android.Widget;
+using Java.Interop;
+using Microsoft.WindowsAzure.MobileServices;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Salla7ly
+{
+    // TODO add gov drop-down list -> not needed as it'll make the search process more complex TODO authorization
+
+    [Activity(MainLauncher = true,
+               Icon = "@drawable/ic_launcher", Label = "@string/app_name",
+               Theme = "@style/AppTheme")]
+    public class MainAcitivity : Activity
+    {
+        private const int AddTechnicianRequest = 1;
+
+        // The request code
+        private const string ApplicationUrl = @"https://salla7ly.azurewebsites.net";
+
+        // Define a authenticated user.
+        private MobileServiceUser _user;
+
+        private bool _authenticated;
+
+        private TechnicianDatabase _techDb;
+
+        private MobileServiceClient _client;
+
+        private ListView _technicianListView;
+
+        private Button _searchButton;
+
+        private Button _menuButton;
+
+        private Spinner _fieldSpinner;
+
+        //Adapter to map the items list to the view
+        private TechnicianAdapter _adapter;
+
+        private ArrayAdapter _fieldAdapter;
+
+        protected override void OnCreate(Bundle bundle)
+        {
+            RequestWindowFeature(WindowFeatures.NoTitle);
+
+            base.OnCreate(bundle);
+
+            // Set our view from the "main" layout resource
+            SetContentView(Resource.Layout.MainActivity);
+
+            CurrentPlatform.Init();
+
+            ConnectivityManager connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
+            NetworkInfo activeConnection = connectivityManager.ActiveNetworkInfo;
+
+            bool isOnline = (activeConnection != null) && activeConnection.IsConnected;
+            if (!isOnline)
+            {
+                // TODO Make the dialog blocking ?
+                Toast.MakeText(this, "Can't connect to the Internet!!, Bad things might happen :( ", ToastLength.Short);
+                //if (wantsToKillApp) Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+            }
+
+            _searchButton = FindViewById<Button>(Resource.Id.searchButton);
+            _menuButton = FindViewById<Button>(Resource.Id.openMenuButton);
+            _searchButton.Enabled = false;
+            _menuButton.Enabled = false;
+            _searchButton.Text = "Please wait";
+
+            InitializeGui();
+
+            Task.Factory.StartNew(async () =>
+            {
+                Task sync = InitializeAppLogic(isOnline);
+                for (int i = 0; !sync.IsCompleted; i++)
+                {
+                    // Do this as log as sync hasn't completed
+                    var iLocal = i;
+                    RunOnUiThread(() => _searchButton.Text = "Please wait" + String.Join("", Enumerable.Repeat(".", iLocal % 3)));
+                    await Task.Delay(650);
+                }
+            });
+
+#if DEBUG
+            var uri = RingtoneManager.GetDefaultUri(RingtoneType.Notification);
+            MediaPlayer player = MediaPlayer.Create(this, uri);
+            player.Looping = false;
+            player.Start();
+#endif
+        }
+
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater.Inflate(Resource.Menu.activity_main, menu);
+            return true;
+        }
+
+        //Select an option from the menu
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            if (item.ItemId == Resource.Id.menu_refresh)
+            {
+                item.SetEnabled(false);
+                Toast.MakeText(this, "We're working in the background, please wait for the second alert", ToastLength.Short);
+                ThreadPool.QueueUserWorkItem(async o =>
+                {
+                    await OnRefreshItemsSelected();
+                    item.SetEnabled(true);
+                });
+            }
+            else if (item.ItemId == Resource.Id.menu_about)
+            {
+                StaticHelper.CreateAndShowDialog(this,
+                    $"Created by Ahmed Hamdy Mahmoud,{System.Environment.NewLine}" +
+                    $"MSP - 2015/2016{System.Environment.NewLine}" +
+                $"Email: ahmedhamdyau@gmail.com, address: Block No. 133 - Smouha, Alexandria, Egypt{System.Environment.NewLine}Thanks!", "Info");
+            }
+            else if (item.ItemId == Resource.Id.menu_add_technician)
+            {
+                Task authorize = new Task(async () =>
+                {
+                    // Add a new technician directly if authenticated.
+                    if (_authenticated)
+                    {
+                        AddTechnician();
+                        return;
+                    }
+
+                    _authenticated = await Authenticate();
+                    if (_authenticated)
+                    {
+                        AddTechnician();
+                    }
+                    else
+                    {
+                        RunOnUiThread(() => Toast.MakeText(this, "Please login to add a technician", ToastLength.Short));
+                    }
+                });
+                authorize.Start();
+            }
+
+            return true;
+        }
+
+        [Export]
+        public async void LoginUser(View view)
+        {
+            // Load data only after authentication succeeds.
+            _authenticated = await Authenticate();
+            if (_authenticated)
+            {
+                //Hide the button after authentication succeeds.
+                //FindViewById<Button>(Resource.Id.buttonLoginUser).Visibility = ViewStates.Gone;
+
+                // Load the data.
+                await OnRefreshItemsSelected();
+            }
+        }
+
+        [Export]
+        public async void FindTechnicainByField(View view)
+        {
+            string fieldName = _fieldSpinner.SelectedItem.ToString();
+            _searchButton.Enabled = false;
+
+            var result = await _techDb.Find(fieldName);
+            _searchButton.Enabled = true;
+            if (result.Count == 0)
+            {
+                Toast.MakeText(this, "Couldn't find technicians", ToastLength.Short);
+                return;
+            }
+            //AddItemsToListView(result);   // Add tracks to listView, display the track and luster name
+            DisplayItemsInListView(result);
+        }
+
+        [Export]
+        public async void TestMethod(View view)
+        {
+            // Menu button
+
+            // Hide soft keyboard if it's open
+            InputMethodManager inputManager = (InputMethodManager)this.GetSystemService(Context.InputMethodService);
+            var currentFocus = this.CurrentFocus;
+            if (currentFocus != null)
+            {
+                inputManager.HideSoftInputFromWindow(currentFocus.WindowToken, HideSoftInputFlags.None);
+            }
+
+            OpenOptionsMenu();
+        }
+
+        public void AddTechnician()
+        {
+            if (_client == null)
+            {
+                Toast.MakeText(this, "Client can't be null", ToastLength.Short);
+                return;
+            }
+
+            // Open the fill form window
+            Intent addTechnicianIntent = new Intent(this, typeof(AddTechnicianActivity));
+            StartActivityForResult(addTechnicianIntent, AddTechnicianRequest);
+        }
+
+        protected override async void OnActivityResult(int requestCode, [Android.Runtime.GeneratedEnum] Result resultCode, Intent data)
+        {
+            if (requestCode == AddTechnicianRequest && resultCode == Result.Ok)
+            {
+                var technician = StaticHelper.AddTechnicianResult;
+                _searchButton.Enabled = false;
+                try
+                {
+                    await _techDb.AddTechnician(technician);
+                    await _techDb.CommitChanges();
+                    DisplayItemsInListView(await _techDb.GetAllTechnicians());
+
+                    //_adapter.Add(technician);
+                    StaticHelper.AddTechnicianResult = null;
+                }
+                catch (Exception e)
+                {
+                    Toast.MakeText(this, $"Error:{e.Message}", ToastLength.Short);
+                }
+                finally
+                {
+                    _searchButton.Enabled = true;
+                }
+            }
+        }
+
+        private async Task<bool> Authenticate()
+        {
+            var success = false;
+            try
+            {
+                // Sign in with Facebook login using a server-managed flow.
+                _user = await _client.LoginAsync(this, MobileServiceAuthenticationProvider.Facebook);
+                //StaticHelper.CreateAndShowDialog(string.Format("you are now logged in"), "Logged in!");
+                success = true;
+            }
+            catch (Exception exc)
+            {
+                Toast.MakeText(this, $"Failed to login, something went wrong: {exc.Message}", ToastLength.Short);
+                //StaticHelper.CreateAndShowDialog(ex, "Authentication failed", this);
+            }
+            return success;
+        }
+
+        private async Task InitializeAppLogic(bool isOnline)
+        {
+            // Create the Mobile Service Client instance, using the provided Mobile Service URL
+            _client = new MobileServiceClient(ApplicationUrl);
+            _techDb = new TechnicianDatabase(_client);
+            StaticHelper.Client = _client;
+
+            await _techDb.Initialize(isOnline);
+
+            RunOnUiThread(
+                () =>
+                {
+                    _menuButton.Enabled = true;
+                    _searchButton.Enabled = true;
+                    _searchButton.Text = "Search";
+                });
+        }
+
+        private void InitializeGui()
+        {
+            // Create an adapter to bind the items with the view
+            _adapter = new TechnicianAdapter(this, Resource.Layout.Row_List_To_Do);
+            _technicianListView = FindViewById<ListView>(Resource.Id.listViewToDo);
+
+            _fieldSpinner = FindViewById<Spinner>(Resource.Id.fieldSearchSpinner);
+            _fieldAdapter = ArrayAdapter.CreateFromResource(
+                  this, Resource.Array.fields_array, Android.Resource.Layout.SimpleSpinnerItem);
+
+            _fieldAdapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+
+            RunOnUiThread(() =>
+            {
+                _technicianListView.ItemClick += TechnicianClick;
+                _technicianListView.Adapter = _adapter;
+                _fieldSpinner.Adapter = _fieldAdapter;
+            });
+        }
+
+        private void TechnicianClick(object sender, AdapterView.ItemClickEventArgs e)
+        {
+            var technician = _adapter[e.Position];
+            Intent displayTechnicaianDetails = new Intent(this, typeof(DisplayTechnicianActivity));
+            displayTechnicaianDetails.PutExtra(Constants.SelectedTechnician, JsonConvert.SerializeObject(technician));
+
+            this.StartActivity(displayTechnicaianDetails);
+        }
+
+        // Called when the refresh menu option is selected
+        private async Task OnRefreshItemsSelected()
+        {
+            try
+            {
+                await _techDb.CommitChanges(true);
+                var list = await _techDb.GetAllTechnicians();
+
+                Toast.MakeText(this, "Done!", ToastLength.Short);
+                DisplayItemsInListView(list);  // refresh view using local database
+            }
+            catch (Exception exception)
+            {
+                Toast.MakeText(this, "Error:" + exception.Message, ToastLength.Short);
+            }
+        }
+
+        //Refresh the list with the items in the local database
+
+        private void DisplayItemsInListView(IEnumerable<Technician> items)
+        {
+            _adapter.Clear();
+            foreach (Technician item in items)
+                _adapter.Add(item);
+        }
+    }
+}

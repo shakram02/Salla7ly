@@ -26,6 +26,23 @@ namespace Salla7ly
 		
 		public static void UpdateIdValues()
 		{
+			global::ModernHttpClient.Resource.String.library_name = global::Salla7ly.Resource.String.library_name;
+		}
+		
+		public partial class Array
+		{
+			
+			// aapt resource value: 0x7f050000
+			public const int fields_array = 2131034112;
+			
+			static Array()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Array()
+			{
+			}
 		}
 		
 		public partial class Attribute
@@ -45,7 +62,7 @@ namespace Salla7ly
 		{
 			
 			// aapt resource value: 0x7f020000
-			public const int Icon = 2130837504;
+			public const int ic_launcher = 2130837504;
 			
 			static Drawable()
 			{
@@ -57,11 +74,117 @@ namespace Salla7ly
 			}
 		}
 		
+		public partial class Id
+		{
+			
+			// aapt resource value: 0x7f08000c
+			public const int LinearLayout1 = 2131230732;
+			
+			// aapt resource value: 0x7f080019
+			public const int action_overflow = 2131230745;
+			
+			// aapt resource value: 0x7f08001a
+			public const int action_slide = 2131230746;
+			
+			// aapt resource value: 0x7f080018
+			public const int action_sync = 2131230744;
+			
+			// aapt resource value: 0x7f080006
+			public const int buttonAddTech = 2131230726;
+			
+			// aapt resource value: 0x7f080012
+			public const int checkToDoItem = 2131230738;
+			
+			// aapt resource value: 0x7f080003
+			public const int cityEditText = 2131230723;
+			
+			// aapt resource value: 0x7f08000e
+			public const int fieldSearchSpinner = 2131230734;
+			
+			// aapt resource value: 0x7f080005
+			public const int fieldSpinner = 2131230725;
+			
+			// aapt resource value: 0x7f080013
+			public const int fieldTextView = 2131230739;
+			
+			// aapt resource value: 0x7f080004
+			public const int govEditText = 2131230724;
+			
+			// aapt resource value: 0x7f080010
+			public const int listViewToDo = 2131230736;
+			
+			// aapt resource value: 0x7f080017
+			public const int menu_about = 2131230743;
+			
+			// aapt resource value: 0x7f080016
+			public const int menu_add_technician = 2131230742;
+			
+			// aapt resource value: 0x7f080015
+			public const int menu_refresh = 2131230741;
+			
+			// aapt resource value: 0x7f080001
+			public const int nameEditText = 2131230721;
+			
+			// aapt resource value: 0x7f08000d
+			public const int openMenuButton = 2131230733;
+			
+			// aapt resource value: 0x7f080002
+			public const int phoneNumberEditText = 2131230722;
+			
+			// aapt resource value: 0x7f080014
+			public const int phoneNumberTextView = 2131230740;
+			
+			// aapt resource value: 0x7f08000f
+			public const int searchButton = 2131230735;
+			
+			// aapt resource value: 0x7f080008
+			public const int techCityDisplayTxt = 2131230728;
+			
+			// aapt resource value: 0x7f08000a
+			public const int techFieldDisplayTxt = 2131230730;
+			
+			// aapt resource value: 0x7f08000b
+			public const int techGovDisplayTxt = 2131230731;
+			
+			// aapt resource value: 0x7f080007
+			public const int techNameDisplayTxt = 2131230727;
+			
+			// aapt resource value: 0x7f080009
+			public const int techPhoneNumberDisplayTxt = 2131230729;
+			
+			// aapt resource value: 0x7f080011
+			public const int textViewLuster = 2131230737;
+			
+			// aapt resource value: 0x7f080000
+			public const int textViewTitle = 2131230720;
+			
+			static Id()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Id()
+			{
+			}
+		}
+		
 		public partial class Layout
 		{
 			
 			// aapt resource value: 0x7f030000
-			public const int Main = 2130903040;
+			public const int AddTech = 2130903040;
+			
+			// aapt resource value: 0x7f030001
+			public const int DisplayTechnician = 2130903041;
+			
+			// aapt resource value: 0x7f030002
+			public const int MainActivity = 2130903042;
+			
+			// aapt resource value: 0x7f030003
+			public const int row_list_luster = 2130903043;
+			
+			// aapt resource value: 0x7f030004
+			public const int Row_List_To_Do = 2130903044;
 			
 			static Layout()
 			{
@@ -73,14 +196,75 @@ namespace Salla7ly
 			}
 		}
 		
+		public partial class Menu
+		{
+			
+			// aapt resource value: 0x7f070000
+			public const int activity_main = 2131165184;
+			
+			// aapt resource value: 0x7f070001
+			public const int menu = 2131165185;
+			
+			static Menu()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Menu()
+			{
+			}
+		}
+		
 		public partial class String
 		{
 			
+			// aapt resource value: 0x7f04000a
+			public const int add_technician_button_text = 2130968586;
+			
+			// aapt resource value: 0x7f040005
+			public const int add_technician_menu_text = 2130968581;
+			
+			// aapt resource value: 0x7f040004
+			public const int add_textbox_hint = 2130968580;
+			
 			// aapt resource value: 0x7f040001
-			public const int ApplicationName = 2130968577;
+			public const int app_name = 2130968577;
+			
+			// aapt resource value: 0x7f040008
+			public const int checkbox_text = 2130968584;
+			
+			// aapt resource value: 0x7f04000d
+			public const int city_add_tech_text_hint = 2130968589;
+			
+			// aapt resource value: 0x7f04000f
+			public const int field_prompt = 2130968591;
+			
+			// aapt resource value: 0x7f04000e
+			public const int gov_add_tech_text_hint = 2130968590;
 			
 			// aapt resource value: 0x7f040000
-			public const int Hello = 2130968576;
+			public const int library_name = 2130968576;
+			
+			// aapt resource value: 0x7f040007
+			public const int menu_about_text = 2130968583;
+			
+			// aapt resource value: 0x7f040006
+			public const int menu_refresh = 2130968582;
+			
+			// aapt resource value: 0x7f040002
+			public const int mobile_services = 2130968578;
+			
+			// aapt resource value: 0x7f04000b
+			public const int name_add_tech_text_hint = 2130968587;
+			
+			// aapt resource value: 0x7f040003
+			public const int open_menu_button_text = 2130968579;
+			
+			// aapt resource value: 0x7f04000c
+			public const int phoneNumber_add_tech_text_hint = 2130968588;
+			
+			// aapt resource value: 0x7f040009
+			public const int search_by_Field_button_text = 2130968585;
 			
 			static String()
 			{
@@ -88,6 +272,25 @@ namespace Salla7ly
 			}
 			
 			private String()
+			{
+			}
+		}
+		
+		public partial class Style
+		{
+			
+			// aapt resource value: 0x7f060000
+			public const int AppBaseTheme = 2131099648;
+			
+			// aapt resource value: 0x7f060001
+			public const int AppTheme = 2131099649;
+			
+			static Style()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Style()
 			{
 			}
 		}

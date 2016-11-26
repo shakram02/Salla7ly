@@ -1,0 +1,30 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+  <item
+
+      android:id="@+id/action_sync"
+
+      android:title="Sync"
+
+      android:showAsAction="collapseActionView"/>
+
+      
+  <item
+
+     android:id="@+id/action_overflow"
+
+     android:title="Sliding Menu"
+
+     android:showAsAction="ifRoom"/>
+
+     
+  <item
+
+     android:id="@+id/action_slide"
+
+     android:title="Popup Menu"
+
+     android:showAsAction="ifRoom"
+
+     />
+</menu>

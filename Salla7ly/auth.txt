@@ -1,0 +1,20 @@
+﻿ Task authorize = new Task(async () =>
+                {
+                    // Add a new technic
+                    if (_authenticated)
+                    {
+                        AddTechnician();
+                        return;
+                    }
+
+                    _authenticated = await Authenticate();
+                    if (_authenticated)
+                    {
+                        AddTechnician();
+                    }
+                    else
+                    {
+                        RunOnUiThread(() => StaticHelper.CreateAndShowDialog(this, "Please login to add a technician", "Info"));
+                    }
+                });
+                authorize.Start();

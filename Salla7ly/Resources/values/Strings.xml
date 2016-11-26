@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="Hello">Hello World, Click Me!</string>
-    <string name="ApplicationName">Salla7ly</string>
+  <string name="app_name">Salla7ly</string>
+  <string name="mobile_services">Salla7ly</string>
+  <string name="open_menu_button_text">Menu</string>
+
+
+  <string name="add_textbox_hint">Find a technician</string>
+  <string name="add_technician_menu_text">Add Technician</string>
+
+  <string name="menu_refresh">View technicians</string>
+  <string name="menu_about_text">About</string>
+
+  <string name="checkbox_text">Item Text</string>
+  <string name="search_by_Field_button_text">Search</string>
+
+  <!--Data form-->
+  <string name="add_technician_button_text">Add</string>
+
+  <string name="name_add_tech_text_hint">Name</string>
+  <string name="phoneNumber_add_tech_text_hint">Phone Number</string>
+  <string name="city_add_tech_text_hint">City</string>
+  <string name="gov_add_tech_text_hint">Governorate</string>
+
+  <!--Drop down list-->
+  <string name="field_prompt">Choose a field</string>
+  <string-array name="fields_array">
+    <item>Electrician - Home appliances</item>
+    <item>Electrician - Wiring Setup</item>
+    <item>Electrician - Cooling devices</item>
+    <item>Plumber</item>
+    <item>Carpenter - Doors and Windows</item>
+    <item>Carpenter - Furniture</item>
+  </string-array>
 </resources>
