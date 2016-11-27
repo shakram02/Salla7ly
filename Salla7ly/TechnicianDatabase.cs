@@ -3,45 +3,29 @@ using Microsoft.WindowsAzure.MobileServices.SQLiteStore;
 using Microsoft.WindowsAzure.MobileServices.Sync;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-
 
 namespace Salla7ly
 {
     public class TechnicianDatabase
     {
-
         //Mobile Service sync table used to access data
         private IMobileServiceSyncTable<Technician> _technicaianTable;
 
         private readonly MobileServiceSQLiteStore _store;
 
         //Mobile Service Client reference
-        private readonly MobileServiceClient _client;
+        public MobileServiceClient Client { get; }
+
         private const string ApplicationUrl = @"https://salla7ly.azurewebsites.net";
-        private readonly bool _isOnline;
 
-        public TechnicianDatabase( bool isOnline)
+        public TechnicianDatabase()
         {
-            _client = _client = new MobileServiceClient(ApplicationUrl);
-            _isOnline = isOnline;
-
-            // new code to initialize the SQLite store
-            //string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), LocalDbFilename);
-            //if (!File.Exists(path))
-            //{
-            //    File.Create(path).Dispose();
-            //}
-
+            Client = new MobileServiceClient(ApplicationUrl);
             _store = new MobileServiceSQLiteStore(LocalDbFilename);
             _store.DefineTable<Technician>();
-            _client.SyncContext.InitializeAsync(_store);
-            _technicaianTable = _client.GetSyncTable<Technician>();
         }
-
-
 
         /// <summary></summary>
         /// <exception cref="Java.Net.MalformedURLException"></exception>
@@ -50,7 +34,7 @@ namespace Salla7ly
         /// <returns></returns>
         public async Task CommitChanges(bool pullData = false)
         {
-            await _client.SyncContext.PushAsync(); // send changes to the mobile service
+            await Client.SyncContext.PushAsync(); // send changes to the mobile service
 
             if (pullData)
             {
@@ -96,14 +80,10 @@ namespace Salla7ly
             await _technicaianTable.InsertAsync(technician); // insert the new item into the local database
         }
 
-       public async Task InitSync()
+        public async Task StartDb()
         {
-            // Uses the default conflict handler, which fails on conflict To use a different conflict
-            // handler, pass a parameter to InitializeAsync. For more details, see http://go.microsoft.com/fwlink/?LinkId=521416
-            await _client.SyncContext.InitializeAsync(_store);
-            _technicaianTable = _client.GetSyncTable<Technician>();
-            if (!_isOnline) return;
-            await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
+            await Client.SyncContext.InitializeAsync(_store);
+            _technicaianTable = Client.GetSyncTable<Technician>();
         }
 
         public async Task<IList<Technician>> Find(string field)
@@ -115,8 +95,7 @@ namespace Salla7ly
             {
                 try
                 {
-                    if (_isOnline)
-                    { await _technicaianTable.PullAsync("pullTechByField", _technicaianTable.Where(t => t.Field.StartsWith(field))); }
+                    await _technicaianTable.PullAsync("pullTechByField", _technicaianTable.Where(t => t.Field.StartsWith(field)));
                 }
                 catch (Exception exc)
                 {
@@ -130,6 +109,5 @@ namespace Salla7ly
         }
 
         private const string LocalDbFilename = "localstore.db";
-
     }
 }

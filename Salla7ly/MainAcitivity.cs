@@ -34,7 +34,7 @@ namespace Salla7ly
 
         private TechnicianDatabase _techDb;
 
-        private MobileServiceClient _client;
+        //private MobileServiceClient _client;
 
         private ListView _technicianListView;
 
@@ -46,7 +46,7 @@ namespace Salla7ly
 
         //Adapter to map the items list to the view
         private TechnicianAdapter _adapter;
-
+        private Button _searchButton;
         private ArrayAdapter _fieldAdapter;
         private bool _syncContextInitialized;
 
@@ -62,17 +62,24 @@ namespace Salla7ly
             CurrentPlatform.Init();
 
             InitializeGui();
-            InitializeAppLogic(IsConnected());
+            _techDb = new TechnicianDatabase();
 
-            _dialog = new ProgressDialog(this);
-            _dialog.SetMessage("Fetching data from Microsoft Azure...");
 
+            _searchButton = FindViewById<Button>(Resource.Id.searchButton);
 #if DEBUG
             var uri = RingtoneManager.GetDefaultUri(RingtoneType.Notification);
             MediaPlayer player = MediaPlayer.Create(this, uri);
             player.Looping = false;
             player.Start();
 #endif
+
+            _dialog = new ProgressDialog(this);
+            _dialog.SetMessage("Fetching data from Microsoft Azure...");
+
+            if (!IsConnected())
+            {
+                UiHelper.MakeToast(this, "Can't connect to the Internet, Offline sync will be used");
+            }
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -91,21 +98,6 @@ namespace Salla7ly
         //Select an option from the menu
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
-
-            //if (item.ItemId == Resource.Id.menu_refresh)
-            //{
-            //    item.SetEnabled(false);
-            //    Task.Factory.StartNew(async () =>
-            //    {
-            //        ShowProgressDialog("Fetching all data from Microsoft Azure");
-
-            //        await OnRefreshItemsSelected();
-            //        item.SetEnabled(true);
-
-            //        HideProgressDialog();
-            //    });
-            //}
-            //else
             if (item.ItemId == Resource.Id.menu_about)
             {
                 UiHelper.CreateAndShowDialog(this,
@@ -147,9 +139,6 @@ namespace Salla7ly
             _authenticated = await Authenticate();
             if (_authenticated)
             {
-                //Hide the button after authentication succeeds.
-                //FindViewById<Button>(Resource.Id.buttonLoginUser).Visibility = ViewStates.Gone;
-
                 // Load the data.
                 await OnRefreshItemsSelected();
             }
@@ -159,37 +148,29 @@ namespace Salla7ly
         public async void FindTechnicainByField(View view)
         {
             string fieldName = _fieldSpinner.SelectedItem.ToString();
-
-
+            _searchButton.Enabled = false;
+            _dialog.Show();
             if (!_syncContextInitialized)
             {
-                InitAzureSync();
                 _syncContextInitialized = true;
+                await Task.Run(async () => await _techDb.StartDb());
+
             }
 
             var result = await _techDb.Find(fieldName);
+
+            _searchButton.Enabled = true;
+            _dialog.Dismiss();
 
             if (result.Count == 0)
             {
                 UiHelper.MakeToast(this, "Couldn't find technicians");
                 return;
             }
-            //AddItemsToListView(result);   // Add tracks to listView, display the track and luster name
+
             DisplayItemsInListView(result);
         }
 
-        private void InitAzureSync()
-        {
-            RunOnUiThread(() => _dialog.Show());
-            bool isOnline = IsConnected();
-            //await _techDb.InitSync();
-
-            RunOnUiThread(() => _dialog.Dismiss());
-            if (!isOnline)
-            {
-                RunOnUiThread(() => UiHelper.MakeToast(this, "Can't connect to the Internet, Offline sync will be used"));
-            }
-        }
 
         [Export]
         public void TestMethod(View view)
@@ -209,7 +190,7 @@ namespace Salla7ly
 
         public void AddTechnician()
         {
-            if (_client == null)
+            if (_techDb.Client == null)
             {
                 UiHelper.MakeToast(this, "Client doesn't exist");
                 return;
@@ -234,9 +215,6 @@ namespace Salla7ly
                 await _techDb.AddTechnician(technician);
                 await _techDb.CommitChanges();
                 DisplayItemsInListView(await _techDb.GetAllTechnicians());
-
-                //_adapter.Add(technician);
-                //StaticHelper.AddTechnicianResult = null;
             }
             catch (Exception e)
             {
@@ -265,7 +243,7 @@ namespace Salla7ly
             try
             {
                 // Sign in with Facebook login using a server-managed flow.
-                _user = await _client.LoginAsync(this, MobileServiceAuthenticationProvider.Facebook);
+                _user = await _techDb.Client.LoginAsync(this, MobileServiceAuthenticationProvider.Facebook);
                 //StaticHelper.CreateAndShowDialog(string.Format("you are now logged in"), "Logged in!");
                 success = true;
             }
@@ -274,14 +252,6 @@ namespace Salla7ly
                 // User cancelled auth.
             }
             return success;
-        }
-
-        private void InitializeAppLogic(bool isOnline)
-        {
-            // Create the Mobile Service Client instance, using the provided Mobile Service URL
-
-
-            _techDb = new TechnicianDatabase(isOnline);
         }
 
         private void InitializeGui()
