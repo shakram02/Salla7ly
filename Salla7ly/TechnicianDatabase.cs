@@ -20,11 +20,11 @@ namespace Salla7ly
 
         //Mobile Service Client reference
         private readonly MobileServiceClient _client;
-        private bool _isOnline;
-        public TechnicianDatabase(MobileServiceClient client, bool isOnline)
+
+        public TechnicianDatabase(MobileServiceClient client)
         {
             _client = client;
-            _isOnline = isOnline;
+
 
             // new code to initialize the SQLite store
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), LocalDbFilename);
@@ -66,30 +66,30 @@ namespace Salla7ly
             }
         }
 
-//#if DEBUG
-//        private Technician tech;
-//        /// <summary>Adds dummy data to the database</summary>
-//        public async Task SeedData(int number, ArrayAdapter adapter)
-//        {
-//            for (int j = 0; j < adapter.Count - 1; j++)
-//            {
-//                for (int i = 0; i < number; i++)
-//                {
-//                    tech = new Technician()
-//                    {
-//                        Name = $"dummy {i}",
-//                        City = $"Dummy city {i}",
-//                        Field = $"{adapter.GetItem(j)}",
-//                        Governorate = $"{i} Alex",
-//                        PhoneNumber = $"01111111111",
-//                    };
+        //#if DEBUG
+        //        private Technician tech;
+        //        /// <summary>Adds dummy data to the database</summary>
+        //        public async Task SeedData(int number, ArrayAdapter adapter)
+        //        {
+        //            for (int j = 0; j < adapter.Count - 1; j++)
+        //            {
+        //                for (int i = 0; i < number; i++)
+        //                {
+        //                    tech = new Technician()
+        //                    {
+        //                        Name = $"dummy {i}",
+        //                        City = $"Dummy city {i}",
+        //                        Field = $"{adapter.GetItem(j)}",
+        //                        Governorate = $"{i} Alex",
+        //                        PhoneNumber = $"01111111111",
+        //                    };
 
-//                    await AddTechnician(tech);
-//                    await CommitChanges();
-//                }
-//            }
-//        }
-//#endif
+        //                    await AddTechnician(tech);
+        //                    await CommitChanges();
+        //                }
+        //            }
+        //        }
+        //#endif
 
         public async Task<IEnumerable<Technician>> GetAllTechnicians(int take = 20)
         {
@@ -112,11 +112,11 @@ namespace Salla7ly
             // handler, pass a parameter to InitializeAsync. For more details, see http://go.microsoft.com/fwlink/?LinkId=521416
             await _client.SyncContext.InitializeAsync(_store);
 
-            if (!_isOnline) return;
-            await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
+            //if (!_isOnline) return;
+            //await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
         }
 
-        public async Task<IList<Technician>> Find(string field)
+        public async Task<IList<Technician>> Find(string field, bool isOnline)
         {
             Expression<Func<Technician, bool>> queryExpression = t => t.Field.StartsWith(field);
 
@@ -125,7 +125,7 @@ namespace Salla7ly
             {
                 try
                 {
-                    if (_isOnline)
+                    if (isOnline)
                     { await _technicaianTable.PullAsync("pullTechByField", _technicaianTable.Where(t => t.Field.StartsWith(field))); }
                 }
                 catch (Exception exc)
