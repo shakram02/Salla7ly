@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Android.Widget;
+
 
 namespace Salla7ly
 {
@@ -74,30 +74,30 @@ namespace Salla7ly
             }
         }
 
-#if DEBUG
-        private Technician tech;
-        /// <summary>Adds dummy data to the database</summary>
-        public async Task SeedData(int number, ArrayAdapter adapter)
-        {
-            for (int j = 0; j < adapter.Count - 1; j++)
-            {
-                for (int i = 0; i < number; i++)
-                {
-                    tech = new Technician()
-                    {
-                        Name = $"dummy {i}",
-                        City = $"Dummy city {i}",
-                        Field = $"{adapter.GetItem(j)}",
-                        Governorate = $"{i} Alex",
-                        PhoneNumber = $"01111111111",
-                    };
+//#if DEBUG
+//        private Technician tech;
+//        /// <summary>Adds dummy data to the database</summary>
+//        public async Task SeedData(int number, ArrayAdapter adapter)
+//        {
+//            for (int j = 0; j < adapter.Count - 1; j++)
+//            {
+//                for (int i = 0; i < number; i++)
+//                {
+//                    tech = new Technician()
+//                    {
+//                        Name = $"dummy {i}",
+//                        City = $"Dummy city {i}",
+//                        Field = $"{adapter.GetItem(j)}",
+//                        Governorate = $"{i} Alex",
+//                        PhoneNumber = $"01111111111",
+//                    };
 
-                    await AddTechnician(tech);
-                    await CommitChanges();
-                }
-            }
-        }
-#endif
+//                    await AddTechnician(tech);
+//                    await CommitChanges();
+//                }
+//            }
+//        }
+//#endif
 
         public async Task<IEnumerable<Technician>> GetAllTechnicians(int take = 20)
         {

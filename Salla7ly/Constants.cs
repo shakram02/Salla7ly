@@ -15,5 +15,6 @@ namespace Salla7ly
     public class Constants
     {
         public const string SelectedTechnician = "SelectedTechnician";
+        public const string AddedTechnician = "AddedTechnician";
     }
 }

@@ -4,6 +4,8 @@ using Android.Views;
 using Android.Widget;
 using Java.Interop;
 using System;
+using Android.Content;
+using Newtonsoft.Json;
 
 namespace Salla7ly
 {
@@ -29,8 +31,10 @@ namespace Salla7ly
             this.SetResult(Result.Canceled);
             if (!VerifyTechnicianData()) return;
 
-            StaticHelper.AddTechnicianResult = _addedTechnician;
-            SetResult(Result.Ok);
+            //StaticHelper.AddTechnicianResult = _addedTechnician;
+            Intent dataBack = new Intent();
+            dataBack.PutExtra(Constants.AddedTechnician, JsonConvert.SerializeObject(_addedTechnician));
+            SetResult(Result.Ok, dataBack);
             Finish();
         }
 

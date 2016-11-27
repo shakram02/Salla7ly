@@ -67,7 +67,6 @@ namespace Salla7ly
 
             bool isOnline = (activeConnection != null) && activeConnection.IsConnected;
 
-
             _searchButton = FindViewById<Button>(Resource.Id.searchButton);
             _menuButton = FindViewById<Button>(Resource.Id.openMenuButton);
             _searchButton.Enabled = false;
@@ -94,7 +93,6 @@ namespace Salla7ly
                     RunOnUiThread(() => UiHelper.MakeToast(this, "Can't connect to the Internet, Offline sync will be used"));
                     //if (wantsToKillApp) Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
-
             });
 
 #if DEBUG
@@ -135,7 +133,7 @@ namespace Salla7ly
             {
                 Task authorize = new Task(async () =>
                 {
-                    // Add a new technician directly if authenticated.
+                    //Add a new technician directly if authenticated.
                     if (_authenticated)
                     {
                         AddTechnician();
@@ -221,33 +219,34 @@ namespace Salla7ly
 
         protected override async void OnActivityResult(int requestCode, [Android.Runtime.GeneratedEnum] Result resultCode, Intent data)
         {
-            if (requestCode == AddTechnicianRequest && resultCode == Result.Ok)
-            {
-                var technician = StaticHelper.AddTechnicianResult;
-                _searchButton.Enabled = false;
-                try
-                {
-                    await _techDb.AddTechnician(technician);
-                    await _techDb.CommitChanges();
-                    DisplayItemsInListView(await _techDb.GetAllTechnicians());
+            if (requestCode != AddTechnicianRequest || resultCode != Result.Ok ||
+                !data.HasExtra(Constants.AddedTechnician)) return;
 
-                    //_adapter.Add(technician);
-                    StaticHelper.AddTechnicianResult = null;
-                }
-                catch (Exception e)
-                {
-                    UiHelper.MakeToast(this, $"Error:{e.Message}");
-                }
-                finally
-                {
-                    _searchButton.Enabled = true;
-                }
+            //var technician = StaticHelper.AddTechnicianResult;
+            var technician = JsonConvert.DeserializeObject<Technician>(data.GetStringExtra(Constants.AddedTechnician));
+            _searchButton.Enabled = false;
+            try
+            {
+                await _techDb.AddTechnician(technician);
+                await _techDb.CommitChanges();
+                DisplayItemsInListView(await _techDb.GetAllTechnicians());
+
+                //_adapter.Add(technician);
+                //StaticHelper.AddTechnicianResult = null;
+            }
+            catch (Exception e)
+            {
+                UiHelper.MakeToast(this, $"Error:{e.Message}");
+            }
+            finally
+            {
+                _searchButton.Enabled = true;
             }
         }
 
         private async Task<bool> Authenticate()
         {
-            var success = false;
+            bool success = false;
             try
             {
                 // Sign in with Facebook login using a server-managed flow.
@@ -255,10 +254,9 @@ namespace Salla7ly
                 //StaticHelper.CreateAndShowDialog(string.Format("you are now logged in"), "Logged in!");
                 success = true;
             }
-            catch (Exception exc)
+            catch (Exception)
             {
-                UiHelper.MakeToast(this, $"Failed to login, something went wrong: {exc.Message}");
-                //StaticHelper.CreateAndShowDialog(ex, "Authentication failed", this);
+                // User cancelled auth.
             }
             return success;
         }
@@ -269,7 +267,6 @@ namespace Salla7ly
 
             _client = new MobileServiceClient(ApplicationUrl);
             _techDb = new TechnicianDatabase(_client, isOnline);
-            StaticHelper.Client = _client;
 
             await _techDb.Initialize();
 
