@@ -55,7 +55,7 @@ namespace Salla7ly
         {
             _clipBoardManager.PrimaryClip = ClipData.NewPlainText($"{_tech.Name}'s phone number",
                 _tech.PhoneNumber);
-            Toast.MakeText(this, "Phone number copied to clipboard", ToastLength.Short);
+            UiHelper.MakeToast(this, "Phone number copied to clipboard");
 
             SetResult(Result.Canceled);
         }

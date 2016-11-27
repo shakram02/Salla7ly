@@ -5,73 +5,73 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#E64A19"
-        android:padding="6dip">
-        <TextView
-            android:id="@+id/textViewTitle"
-            android:layout_width="0dip"
-            android:padding="7dip"
-            android:textColor="#FFFFFF"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_weight="1"
-            android:text="@string/mobile_services"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="0.2" />
-        <Button
-            android:id="@+id/openMenuButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:onClick="TestMethod"
-            android:text="@string/open_menu_button_text" />
-    </LinearLayout>
-<!--Search spinner text-->
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="#E64A19"
+      android:padding="6dip">
     <TextView
         android:id="@+id/textViewTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dip"
         android:padding="7dip"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Search field:" />
-<!--Search bar-->
-    <LinearLayout
-        android:layout_width="match_parent"
+        android:textColor="#FFFFFF"
         android:layout_height="wrap_content"
-        android:padding="6dip">
-        <Spinner
-            android:id="@+id/fieldSearchSpinner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:padding="6dip"
-            android:prompt="@string/field_prompt" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_marginLeft="2dp"
+        android:layout_weight="1"
+        android:text="@string/mobile_services"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0.2" />
+    <Button
+        android:id="@+id/openMenuButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="1dip">
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="0.2" />
-        <Button
-            android:id="@+id/searchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="FindTechnicainByField"
-            android:text="@string/search_by_Field_button_text" />
-    </LinearLayout>
-    <ListView
-        android:id="@+id/listViewToDo"
-        android:layout_width="match_parent"
+        android:textColor="#FFFFFF"
+        android:onClick="TestMethod"
+        android:text="@string/open_menu_button_text" />
+  </LinearLayout>
+  <!--Search spinner text-->
+  <TextView
+      android:id="@+id/textViewTitle"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="7dip"
+      android:textAppearance="?android:attr/textAppearanceLarge"
+      android:text="Search field:" />
+  <!--Search bar-->
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:padding="6dip">
+    <Spinner
+        android:id="@+id/fieldSearchSpinner"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/row_list_to_do"
-        android:padding="6dip" />
+        android:padding="6dip"
+        android:prompt="@string/field_prompt" />
+  </LinearLayout>
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:padding="1dip">
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="0.2" />
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="FindTechnicainByField"
+        android:text="@string/search_by_Field_button_text" />
+  </LinearLayout>
+  <ListView
+      android:id="@+id/listViewToDo"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      tools:listitem="@layout/Row_List_Technician"
+      android:padding="6dip" />
 </LinearLayout>

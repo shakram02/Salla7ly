@@ -3,55 +3,55 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-              android:layout_margin="4dp">
+    android:layout_margin="4dp">
   <TextView
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:text="Name" />
-  <TextView
-      android:id="@+id/techNameDisplayTxt"
-      android:textSize="22sp"
-      android:textStyle="bold"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content" />
-  <TextView
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:text="City" />
-  <TextView
-      android:id="@+id/techCityDisplayTxt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Name" />
+    <TextView
+        android:id="@+id/techNameDisplayTxt"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="City" />
+    <TextView
+        android:id="@+id/techCityDisplayTxt"
         android:layout_width="fill_parent"
         android:textSize="22sp"
-      android:textStyle="bold"
+        android:textStyle="bold"
         android:layout_height="wrap_content" />
-  <TextView
-      android:layout_width="fill_parent"
+    <TextView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Phone number" />
-  <TextView
-      android:id="@+id/techPhoneNumberDisplayTxt"
+    <TextView
+        android:id="@+id/techPhoneNumberDisplayTxt"
         android:layout_width="fill_parent"
-      android:textSize="22sp"
-      android:textStyle="bold"
+        android:textSize="22sp"
+        android:textStyle="bold"
         android:layout_height="wrap_content" />
-  <TextView
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:text="Field" />
-  <TextView
-      android:id="@+id/techFieldDisplayTxt"
-      android:textSize="22sp"
-      android:textStyle="bold"
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Field" />
+    <TextView
+        android:id="@+id/techFieldDisplayTxt"
+        android:textSize="22sp"
+        android:textStyle="bold"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
-  <TextView
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:text="Gov" />
-  <TextView
-      android:id="@+id/techGovDisplayTxt"
-      android:textSize="22sp"
-      android:textStyle="bold"
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Gov" />
+    <TextView
+        android:id="@+id/techGovDisplayTxt"
+        android:textSize="22sp"
+        android:textStyle="bold"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

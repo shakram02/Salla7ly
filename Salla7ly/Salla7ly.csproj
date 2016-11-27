@@ -112,10 +112,11 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AndroidHelpers.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DisplayTechnicianActivity.cs" />
+    <Compile Include="DetailsFragment.cs" />
     <Compile Include="TechnicianDatabase.cs" />
-    <Compile Include="IDataEntity.cs" />
     <Compile Include="AddTechnicianActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -131,9 +132,6 @@
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
-    <AndroidResource Include="Resources\layout\row_list_luster.axml">
-      <SubType>Designer</SubType>
-    </AndroidResource>
     <AndroidResource Include="Resources\layout\AddTech.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
@@ -143,11 +141,14 @@
     <AndroidResource Include="Resources\layout\DisplayTechnician.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\layout\DetailsFragment.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />
     <AndroidResource Include="Resources\layout\MainActivity.axml" />
-    <AndroidResource Include="Resources\layout\Row_List_To_Do.axml" />
+    <AndroidResource Include="Resources\layout\Row_List_Technician.axml" />
     <AndroidResource Include="Resources\values\styles.xml" />
     <AndroidResource Include="Resources\drawable-ldpi\ic_launcher.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_launcher.png" />

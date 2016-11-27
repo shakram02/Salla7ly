@@ -83,7 +83,7 @@ namespace Salla7ly
                 || String.IsNullOrEmpty(gov)
                 || String.IsNullOrEmpty(phoneNumber))
             {
-                Toast.MakeText(this, "All fields are required", ToastLength.Short);
+                UiHelper.MakeToast(this, "All fields are required");
                 return false;
             }
 
@@ -113,17 +113,17 @@ namespace Salla7ly
             int dummy;
             if (!phoneNumber.StartsWith("01"))
             {
-                Toast.MakeText(this, "Phone number format: 01XXXXXXXXX", ToastLength.Short);
+                UiHelper.MakeToast(this, "Phone number format: 01XXXXXXXXX");
                 return false;
             }
             if (phoneNumber.Length != 11)
             {
-                Toast.MakeText(this, "Phone number must be 11 characters", ToastLength.Short);
+                UiHelper.MakeToast(this, "Phone number must be 11 characters");
                 return false;
             }
             if (!int.TryParse(phoneNumber, out dummy))
             {
-                Toast.MakeText(this, "Phone number can't have non numeric characters", ToastLength.Short);
+                UiHelper.MakeToast(this, "Phone number can't have non numeric characters");
                 return false;
             }
 

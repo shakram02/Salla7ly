@@ -66,12 +66,7 @@ namespace Salla7ly
             NetworkInfo activeConnection = connectivityManager.ActiveNetworkInfo;
 
             bool isOnline = (activeConnection != null) && activeConnection.IsConnected;
-            if (!isOnline)
-            {
-                // TODO Make the dialog blocking ?
-                Toast.MakeText(this, "Can't connect to the Internet!!, Bad things might happen :( ", ToastLength.Short);
-                //if (wantsToKillApp) Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
-            }
+
 
             _searchButton = FindViewById<Button>(Resource.Id.searchButton);
             _menuButton = FindViewById<Button>(Resource.Id.openMenuButton);
@@ -84,6 +79,7 @@ namespace Salla7ly
             Task.Factory.StartNew(async () =>
             {
                 Task sync = InitializeAppLogic(isOnline);
+
                 for (int i = 0; !sync.IsCompleted; i++)
                 {
                     // Do this as log as sync hasn't completed
@@ -91,6 +87,14 @@ namespace Salla7ly
                     RunOnUiThread(() => _searchButton.Text = "Please wait" + String.Join("", Enumerable.Repeat(".", iLocal % 3)));
                     await Task.Delay(650);
                 }
+
+                if (!isOnline)
+                {
+                    // TODO Make the dialog blocking ?
+                    RunOnUiThread(() => UiHelper.MakeToast(this, "Can't connect to the Internet, Offline sync will be used"));
+                    //if (wantsToKillApp) Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+                }
+
             });
 
 #if DEBUG
@@ -113,7 +117,7 @@ namespace Salla7ly
             if (item.ItemId == Resource.Id.menu_refresh)
             {
                 item.SetEnabled(false);
-                Toast.MakeText(this, "We're working in the background, please wait for the second alert", ToastLength.Short);
+                UiHelper.MakeToast(this, "We're working in the background, please wait for the second alert");
                 ThreadPool.QueueUserWorkItem(async o =>
                 {
                     await OnRefreshItemsSelected();
@@ -122,7 +126,7 @@ namespace Salla7ly
             }
             else if (item.ItemId == Resource.Id.menu_about)
             {
-                StaticHelper.CreateAndShowDialog(this,
+                UiHelper.CreateAndShowDialog(this,
                     $"Created by Ahmed Hamdy Mahmoud,{System.Environment.NewLine}" +
                     $"MSP - 2015/2016{System.Environment.NewLine}" +
                 $"Email: ahmedhamdyau@gmail.com, address: Block No. 133 - Smouha, Alexandria, Egypt{System.Environment.NewLine}Thanks!", "Info");
@@ -145,7 +149,7 @@ namespace Salla7ly
                     }
                     else
                     {
-                        RunOnUiThread(() => Toast.MakeText(this, "Please login to add a technician", ToastLength.Short));
+                        RunOnUiThread(() => UiHelper.MakeToast(this, "Please login to add a technician"));
                     }
                 });
                 authorize.Start();
@@ -179,7 +183,7 @@ namespace Salla7ly
             _searchButton.Enabled = true;
             if (result.Count == 0)
             {
-                Toast.MakeText(this, "Couldn't find technicians", ToastLength.Short);
+                UiHelper.MakeToast(this, "Couldn't find technicians");
                 return;
             }
             //AddItemsToListView(result);   // Add tracks to listView, display the track and luster name
@@ -206,7 +210,7 @@ namespace Salla7ly
         {
             if (_client == null)
             {
-                Toast.MakeText(this, "Client can't be null", ToastLength.Short);
+                UiHelper.MakeToast(this, "Client doesn't exist");
                 return;
             }
 
@@ -232,7 +236,7 @@ namespace Salla7ly
                 }
                 catch (Exception e)
                 {
-                    Toast.MakeText(this, $"Error:{e.Message}", ToastLength.Short);
+                    UiHelper.MakeToast(this, $"Error:{e.Message}");
                 }
                 finally
                 {
@@ -253,7 +257,7 @@ namespace Salla7ly
             }
             catch (Exception exc)
             {
-                Toast.MakeText(this, $"Failed to login, something went wrong: {exc.Message}", ToastLength.Short);
+                UiHelper.MakeToast(this, $"Failed to login, something went wrong: {exc.Message}");
                 //StaticHelper.CreateAndShowDialog(ex, "Authentication failed", this);
             }
             return success;
@@ -262,11 +266,12 @@ namespace Salla7ly
         private async Task InitializeAppLogic(bool isOnline)
         {
             // Create the Mobile Service Client instance, using the provided Mobile Service URL
+
             _client = new MobileServiceClient(ApplicationUrl);
-            _techDb = new TechnicianDatabase(_client);
+            _techDb = new TechnicianDatabase(_client, isOnline);
             StaticHelper.Client = _client;
 
-            await _techDb.Initialize(isOnline);
+            await _techDb.Initialize();
 
             RunOnUiThread(
                 () =>
@@ -280,7 +285,7 @@ namespace Salla7ly
         private void InitializeGui()
         {
             // Create an adapter to bind the items with the view
-            _adapter = new TechnicianAdapter(this, Resource.Layout.Row_List_To_Do);
+            _adapter = new TechnicianAdapter(this, Resource.Layout.Row_List_Technician);
             _technicianListView = FindViewById<ListView>(Resource.Id.listViewToDo);
 
             _fieldSpinner = FindViewById<Spinner>(Resource.Id.fieldSearchSpinner);
@@ -314,12 +319,12 @@ namespace Salla7ly
                 await _techDb.CommitChanges(true);
                 var list = await _techDb.GetAllTechnicians();
 
-                Toast.MakeText(this, "Done!", ToastLength.Short);
+                UiHelper.MakeToast(this, "Done!");
                 DisplayItemsInListView(list);  // refresh view using local database
             }
             catch (Exception exception)
             {
-                Toast.MakeText(this, "Error:" + exception.Message, ToastLength.Short);
+                UiHelper.MakeToast(this, "Error:" + exception.Message);
             }
         }
 

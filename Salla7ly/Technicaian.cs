@@ -3,8 +3,9 @@ using Newtonsoft.Json;
 namespace Salla7ly
 {
 
-    public class Technician : DataEntity
+    public class Technician
     {
+        public string Id { get; set; }
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
 
@@ -22,8 +23,5 @@ namespace Salla7ly
 
         [JsonProperty(PropertyName = "governorate")]
         public string Governorate { get; set; }
-
-
-        // TODO change LusterName to LusterID in portal
     }
 }

@@ -12,18 +12,28 @@ namespace Salla7ly
 {
     public class TechnicianDatabase
     {
-        public TechnicianDatabase(MobileServiceClient client)
+
+        //Mobile Service sync table used to access data
+        private readonly IMobileServiceSyncTable<Technician> _technicaianTable;
+
+        private readonly MobileServiceSQLiteStore _store;
+
+        //Mobile Service Client reference
+        private readonly MobileServiceClient _client;
+        private bool _isOnline;
+        public TechnicianDatabase(MobileServiceClient client, bool isOnline)
         {
             _client = client;
+            _isOnline = isOnline;
 
             // new code to initialize the SQLite store
-            string path = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal), LocalDbFilename);
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), LocalDbFilename);
 
             //// Start locally clean each time
 #if (DEBUG)
-
-            if (File.Exists(path))
-                File.Delete(path);
+            // TODO remove
+            //if (File.Exists(path))
+            //    File.Delete(path);
 #endif
 
             if (!File.Exists(path))
@@ -36,13 +46,13 @@ namespace Salla7ly
             _technicaianTable = _client.GetSyncTable<Technician>();
         }
 
-        public async Task Initialize(bool connected)
+        public async Task Initialize()
         {
             // Uses the default conflict handler, which fails on conflict To use a different conflict
             // handler, pass a parameter to InitializeAsync. For more details, see http://go.microsoft.com/fwlink/?LinkId=521416
             await _client.SyncContext.InitializeAsync(_store);
-            if (!connected) return;
 
+            if (!_isOnline) return;
             await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
         }
 
@@ -110,7 +120,16 @@ namespace Salla7ly
             var results = await _technicaianTable.Where(queryExpression).ToListAsync();
             if (results.Count == 0)
             {
-                await _technicaianTable.PullAsync("pullTechByField", _technicaianTable.Where(t => t.Field.StartsWith(field)));
+                try
+                {
+                    if (_isOnline)
+                    { await _technicaianTable.PullAsync("pullTechByField", _technicaianTable.Where(t => t.Field.StartsWith(field))); }
+                }
+                catch (Exception exc)
+                {
+                    string err = exc.Message;
+                }
+
                 return await _technicaianTable.Where(queryExpression).ToListAsync();
             }
 
@@ -119,12 +138,5 @@ namespace Salla7ly
 
         private const string LocalDbFilename = "localstore.db";
 
-        //Mobile Service sync table used to access data
-        private readonly IMobileServiceSyncTable<Technician> _technicaianTable;
-
-        private readonly MobileServiceSQLiteStore _store;
-
-        //Mobile Service Client reference
-        private readonly MobileServiceClient _client;
     }
 }

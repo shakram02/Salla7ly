@@ -80,20 +80,20 @@ namespace Salla7ly
 			// aapt resource value: 0x7f08000c
 			public const int LinearLayout1 = 2131230732;
 			
-			// aapt resource value: 0x7f080019
-			public const int action_overflow = 2131230745;
-			
-			// aapt resource value: 0x7f08001a
-			public const int action_slide = 2131230746;
-			
 			// aapt resource value: 0x7f080018
-			public const int action_sync = 2131230744;
+			public const int action_overflow = 2131230744;
+			
+			// aapt resource value: 0x7f080019
+			public const int action_slide = 2131230745;
+			
+			// aapt resource value: 0x7f080017
+			public const int action_sync = 2131230743;
 			
 			// aapt resource value: 0x7f080006
 			public const int buttonAddTech = 2131230726;
 			
-			// aapt resource value: 0x7f080012
-			public const int checkToDoItem = 2131230738;
+			// aapt resource value: 0x7f080011
+			public const int checkToDoItem = 2131230737;
 			
 			// aapt resource value: 0x7f080003
 			public const int cityEditText = 2131230723;
@@ -104,8 +104,8 @@ namespace Salla7ly
 			// aapt resource value: 0x7f080005
 			public const int fieldSpinner = 2131230725;
 			
-			// aapt resource value: 0x7f080013
-			public const int fieldTextView = 2131230739;
+			// aapt resource value: 0x7f080012
+			public const int fieldTextView = 2131230738;
 			
 			// aapt resource value: 0x7f080004
 			public const int govEditText = 2131230724;
@@ -113,14 +113,14 @@ namespace Salla7ly
 			// aapt resource value: 0x7f080010
 			public const int listViewToDo = 2131230736;
 			
-			// aapt resource value: 0x7f080017
-			public const int menu_about = 2131230743;
-			
 			// aapt resource value: 0x7f080016
-			public const int menu_add_technician = 2131230742;
+			public const int menu_about = 2131230742;
 			
 			// aapt resource value: 0x7f080015
-			public const int menu_refresh = 2131230741;
+			public const int menu_add_technician = 2131230741;
+			
+			// aapt resource value: 0x7f080014
+			public const int menu_refresh = 2131230740;
 			
 			// aapt resource value: 0x7f080001
 			public const int nameEditText = 2131230721;
@@ -131,8 +131,8 @@ namespace Salla7ly
 			// aapt resource value: 0x7f080002
 			public const int phoneNumberEditText = 2131230722;
 			
-			// aapt resource value: 0x7f080014
-			public const int phoneNumberTextView = 2131230740;
+			// aapt resource value: 0x7f080013
+			public const int phoneNumberTextView = 2131230739;
 			
 			// aapt resource value: 0x7f08000f
 			public const int searchButton = 2131230735;
@@ -151,9 +151,6 @@ namespace Salla7ly
 			
 			// aapt resource value: 0x7f080009
 			public const int techPhoneNumberDisplayTxt = 2131230729;
-			
-			// aapt resource value: 0x7f080011
-			public const int textViewLuster = 2131230737;
 			
 			// aapt resource value: 0x7f080000
 			public const int textViewTitle = 2131230720;
@@ -175,16 +172,16 @@ namespace Salla7ly
 			public const int AddTech = 2130903040;
 			
 			// aapt resource value: 0x7f030001
-			public const int DisplayTechnician = 2130903041;
+			public const int DetailsFragment = 2130903041;
 			
 			// aapt resource value: 0x7f030002
-			public const int MainActivity = 2130903042;
+			public const int DisplayTechnician = 2130903042;
 			
 			// aapt resource value: 0x7f030003
-			public const int row_list_luster = 2130903043;
+			public const int MainActivity = 2130903043;
 			
 			// aapt resource value: 0x7f030004
-			public const int Row_List_To_Do = 2130903044;
+			public const int Row_List_Technician = 2130903044;
 			
 			static Layout()
 			{
