@@ -11,8 +11,6 @@ using Microsoft.WindowsAzure.MobileServices;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Salla7ly
@@ -40,9 +38,9 @@ namespace Salla7ly
 
         private ListView _technicianListView;
 
-        private Button _searchButton;
 
-        private Button _menuButton;
+        private ProgressDialog _dialog;
+
 
         private Spinner _fieldSpinner;
 
@@ -50,6 +48,7 @@ namespace Salla7ly
         private TechnicianAdapter _adapter;
 
         private ArrayAdapter _fieldAdapter;
+        private bool _syncContextInitialized;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -62,38 +61,11 @@ namespace Salla7ly
 
             CurrentPlatform.Init();
 
-            ConnectivityManager connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
-            NetworkInfo activeConnection = connectivityManager.ActiveNetworkInfo;
-
-            bool isOnline = (activeConnection != null) && activeConnection.IsConnected;
-
-            _searchButton = FindViewById<Button>(Resource.Id.searchButton);
-            _menuButton = FindViewById<Button>(Resource.Id.openMenuButton);
-            _searchButton.Enabled = false;
-            _menuButton.Enabled = false;
-            _searchButton.Text = "Please wait";
-
             InitializeGui();
+            InitializeAppLogic(IsConnected());
 
-            Task.Factory.StartNew(async () =>
-            {
-                Task sync = InitializeAppLogic(isOnline);
-
-                for (int i = 0; !sync.IsCompleted; i++)
-                {
-                    // Do this as log as sync hasn't completed
-                    var iLocal = i;
-                    RunOnUiThread(() => _searchButton.Text = "Please wait" + String.Join("", Enumerable.Repeat(".", iLocal % 3)));
-                    await Task.Delay(650);
-                }
-
-                if (!isOnline)
-                {
-                    // TODO Make the dialog blocking ?
-                    RunOnUiThread(() => UiHelper.MakeToast(this, "Can't connect to the Internet, Offline sync will be used"));
-                    //if (wantsToKillApp) Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
-                }
-            });
+            _dialog = new ProgressDialog(this);
+            _dialog.SetMessage("Fetching data from Microsoft Azure...");
 
 #if DEBUG
             var uri = RingtoneManager.GetDefaultUri(RingtoneType.Notification);
@@ -109,20 +81,32 @@ namespace Salla7ly
             return true;
         }
 
+        private bool IsConnected()
+        {
+            ConnectivityManager connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
+            NetworkInfo activeConnection = connectivityManager.ActiveNetworkInfo;
+            return (activeConnection != null) && activeConnection.IsConnected;
+        }
+
         //Select an option from the menu
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
-            if (item.ItemId == Resource.Id.menu_refresh)
-            {
-                item.SetEnabled(false);
-                UiHelper.MakeToast(this, "We're working in the background, please wait for the second alert");
-                ThreadPool.QueueUserWorkItem(async o =>
-                {
-                    await OnRefreshItemsSelected();
-                    item.SetEnabled(true);
-                });
-            }
-            else if (item.ItemId == Resource.Id.menu_about)
+
+            //if (item.ItemId == Resource.Id.menu_refresh)
+            //{
+            //    item.SetEnabled(false);
+            //    Task.Factory.StartNew(async () =>
+            //    {
+            //        ShowProgressDialog("Fetching all data from Microsoft Azure");
+
+            //        await OnRefreshItemsSelected();
+            //        item.SetEnabled(true);
+
+            //        HideProgressDialog();
+            //    });
+            //}
+            //else
+            if (item.ItemId == Resource.Id.menu_about)
             {
                 UiHelper.CreateAndShowDialog(this,
                     $"Created by Ahmed Hamdy Mahmoud,{System.Environment.NewLine}" +
@@ -175,10 +159,16 @@ namespace Salla7ly
         public async void FindTechnicainByField(View view)
         {
             string fieldName = _fieldSpinner.SelectedItem.ToString();
-            _searchButton.Enabled = false;
+
+
+            if (!_syncContextInitialized)
+            {
+                await Task.Factory.StartNew(async () => await InitAzureSync());
+                _syncContextInitialized = true;
+            }
 
             var result = await _techDb.Find(fieldName);
-            _searchButton.Enabled = true;
+
             if (result.Count == 0)
             {
                 UiHelper.MakeToast(this, "Couldn't find technicians");
@@ -188,8 +178,21 @@ namespace Salla7ly
             DisplayItemsInListView(result);
         }
 
+        private async Task InitAzureSync()
+        {
+            RunOnUiThread(() => _dialog.Show());
+            bool isOnline = IsConnected();
+            await _techDb.InitSync();
+
+            RunOnUiThread(() => _dialog.Dismiss());
+            if (!isOnline)
+            {
+                RunOnUiThread(() => UiHelper.MakeToast(this, "Can't connect to the Internet, Offline sync will be used"));
+            }
+        }
+
         [Export]
-        public async void TestMethod(View view)
+        public void TestMethod(View view)
         {
             // Menu button
 
@@ -224,7 +227,8 @@ namespace Salla7ly
 
             //var technician = StaticHelper.AddTechnicianResult;
             var technician = JsonConvert.DeserializeObject<Technician>(data.GetStringExtra(Constants.AddedTechnician));
-            _searchButton.Enabled = false;
+
+            ShowProgressDialog("Adding technician...");
             try
             {
                 await _techDb.AddTechnician(technician);
@@ -240,8 +244,19 @@ namespace Salla7ly
             }
             finally
             {
-                _searchButton.Enabled = true;
+                HideProgressDialog();
             }
+        }
+
+        void ShowProgressDialog(string text)
+        {
+            _dialog.SetMessage(text);
+            RunOnUiThread(() => _dialog.Show());
+        }
+
+        void HideProgressDialog()
+        {
+            RunOnUiThread(() => _dialog.Dismiss());
         }
 
         private async Task<bool> Authenticate()
@@ -261,22 +276,12 @@ namespace Salla7ly
             return success;
         }
 
-        private async Task InitializeAppLogic(bool isOnline)
+        private void InitializeAppLogic(bool isOnline)
         {
             // Create the Mobile Service Client instance, using the provided Mobile Service URL
 
             _client = new MobileServiceClient(ApplicationUrl);
             _techDb = new TechnicianDatabase(_client, isOnline);
-
-            await _techDb.Initialize();
-
-            RunOnUiThread(
-                () =>
-                {
-                    _menuButton.Enabled = true;
-                    _searchButton.Enabled = true;
-                    _searchButton.Text = "Search";
-                });
         }
 
         private void InitializeGui()

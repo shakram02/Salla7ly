@@ -80,14 +80,14 @@ namespace Salla7ly
 			// aapt resource value: 0x7f08000c
 			public const int LinearLayout1 = 2131230732;
 			
-			// aapt resource value: 0x7f080018
-			public const int action_overflow = 2131230744;
-			
-			// aapt resource value: 0x7f080019
-			public const int action_slide = 2131230745;
-			
 			// aapt resource value: 0x7f080017
-			public const int action_sync = 2131230743;
+			public const int action_overflow = 2131230743;
+			
+			// aapt resource value: 0x7f080018
+			public const int action_slide = 2131230744;
+			
+			// aapt resource value: 0x7f080016
+			public const int action_sync = 2131230742;
 			
 			// aapt resource value: 0x7f080006
 			public const int buttonAddTech = 2131230726;
@@ -113,14 +113,11 @@ namespace Salla7ly
 			// aapt resource value: 0x7f080010
 			public const int listViewToDo = 2131230736;
 			
-			// aapt resource value: 0x7f080016
-			public const int menu_about = 2131230742;
-			
 			// aapt resource value: 0x7f080015
-			public const int menu_add_technician = 2131230741;
+			public const int menu_about = 2131230741;
 			
 			// aapt resource value: 0x7f080014
-			public const int menu_refresh = 2131230740;
+			public const int menu_add_technician = 2131230740;
 			
 			// aapt resource value: 0x7f080001
 			public const int nameEditText = 2131230721;

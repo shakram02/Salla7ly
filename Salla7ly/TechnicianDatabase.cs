@@ -46,15 +46,7 @@ namespace Salla7ly
             _technicaianTable = _client.GetSyncTable<Technician>();
         }
 
-        public async Task Initialize()
-        {
-            // Uses the default conflict handler, which fails on conflict To use a different conflict
-            // handler, pass a parameter to InitializeAsync. For more details, see http://go.microsoft.com/fwlink/?LinkId=521416
-            await _client.SyncContext.InitializeAsync(_store);
 
-            if (!_isOnline) return;
-            await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
-        }
 
         /// <summary></summary>
         /// <exception cref="Java.Net.MalformedURLException"></exception>
@@ -113,6 +105,17 @@ namespace Salla7ly
         {
             return await _technicaianTable.Where(expression).ToListAsync();
         }
+
+        public async Task InitSync()
+        {
+            // Uses the default conflict handler, which fails on conflict To use a different conflict
+            // handler, pass a parameter to InitializeAsync. For more details, see http://go.microsoft.com/fwlink/?LinkId=521416
+            await _client.SyncContext.InitializeAsync(_store);
+
+            if (!_isOnline) return;
+            await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
+        }
+
         public async Task<IList<Technician>> Find(string field)
         {
             Expression<Func<Technician, bool>> queryExpression = t => t.Field.StartsWith(field);
