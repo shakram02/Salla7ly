@@ -14,35 +14,30 @@ namespace Salla7ly
     {
 
         //Mobile Service sync table used to access data
-        private readonly IMobileServiceSyncTable<Technician> _technicaianTable;
+        private IMobileServiceSyncTable<Technician> _technicaianTable;
 
         private readonly MobileServiceSQLiteStore _store;
 
         //Mobile Service Client reference
         private readonly MobileServiceClient _client;
+        private const string ApplicationUrl = @"https://salla7ly.azurewebsites.net";
+        private readonly bool _isOnline;
 
-        public TechnicianDatabase(MobileServiceClient client)
+        public TechnicianDatabase( bool isOnline)
         {
-            _client = client;
-
+            _client = _client = new MobileServiceClient(ApplicationUrl);
+            _isOnline = isOnline;
 
             // new code to initialize the SQLite store
-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), LocalDbFilename);
+            //string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), LocalDbFilename);
+            //if (!File.Exists(path))
+            //{
+            //    File.Create(path).Dispose();
+            //}
 
-            //// Start locally clean each time
-#if (DEBUG)
-            // TODO remove
-            //if (File.Exists(path))
-            //    File.Delete(path);
-#endif
-
-            if (!File.Exists(path))
-            {
-                File.Create(path).Dispose();
-            }
-
-            _store = new MobileServiceSQLiteStore(path);
+            _store = new MobileServiceSQLiteStore(LocalDbFilename);
             _store.DefineTable<Technician>();
+            _client.SyncContext.InitializeAsync(_store);
             _technicaianTable = _client.GetSyncTable<Technician>();
         }
 
@@ -101,22 +96,17 @@ namespace Salla7ly
             await _technicaianTable.InsertAsync(technician); // insert the new item into the local database
         }
 
-        public async Task<IList<Technician>> Find(Expression<Func<Technician, bool>> expression)
-        {
-            return await _technicaianTable.Where(expression).ToListAsync();
-        }
-
-        public async Task InitSync()
+       public async Task InitSync()
         {
             // Uses the default conflict handler, which fails on conflict To use a different conflict
             // handler, pass a parameter to InitializeAsync. For more details, see http://go.microsoft.com/fwlink/?LinkId=521416
             await _client.SyncContext.InitializeAsync(_store);
-
-            //if (!_isOnline) return;
-            //await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
+            _technicaianTable = _client.GetSyncTable<Technician>();
+            if (!_isOnline) return;
+            await _technicaianTable.PullAsync("technicianQuery", _technicaianTable.CreateQuery()); // query ID is used for incremental sync
         }
 
-        public async Task<IList<Technician>> Find(string field, bool isOnline)
+        public async Task<IList<Technician>> Find(string field)
         {
             Expression<Func<Technician, bool>> queryExpression = t => t.Field.StartsWith(field);
 
@@ -125,7 +115,7 @@ namespace Salla7ly
             {
                 try
                 {
-                    if (isOnline)
+                    if (_isOnline)
                     { await _technicaianTable.PullAsync("pullTechByField", _technicaianTable.Where(t => t.Field.StartsWith(field))); }
                 }
                 catch (Exception exc)
