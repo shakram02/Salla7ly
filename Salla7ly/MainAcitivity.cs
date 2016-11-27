@@ -11,6 +11,7 @@ using Microsoft.WindowsAzure.MobileServices;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Salla7ly
@@ -158,7 +159,6 @@ namespace Salla7ly
             }
 
             var result = await _techDb.Find(fieldName);
-
             _searchButton.Enabled = true;
             _dialog.Dismiss();
 
