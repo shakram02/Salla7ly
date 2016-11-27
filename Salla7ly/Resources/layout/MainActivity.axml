@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#FFFFFF"
-            android:onClick="TestMethod"
+            android:onClick="OpenPopupMenu"
             android:text="@string/open_menu_button_text" />
     </LinearLayout>
 <!--Search spinner text-->

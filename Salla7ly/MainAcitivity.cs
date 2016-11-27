@@ -27,26 +27,17 @@ namespace Salla7ly
 
         // The request code
 
-
         // Define a authenticated user.
         private MobileServiceUser _user;
-
         private bool _authenticated;
-
         private TechnicianDatabase _techDb;
-
-        //private MobileServiceClient _client;
-
         private ListView _technicianListView;
-
-
-        private ProgressDialog _dialog;
-
-
+        private ProgressDialog _progressDialog;
         private Spinner _fieldSpinner;
 
         //Adapter to map the items list to the view
         private TechnicianAdapter _adapter;
+
         private Button _searchButton;
         private ArrayAdapter _fieldAdapter;
         private bool _syncContextInitialized;
@@ -65,7 +56,6 @@ namespace Salla7ly
             InitializeGui();
             _techDb = new TechnicianDatabase();
 
-
             _searchButton = FindViewById<Button>(Resource.Id.searchButton);
 #if DEBUG
             var uri = RingtoneManager.GetDefaultUri(RingtoneType.Notification);
@@ -74,8 +64,7 @@ namespace Salla7ly
             player.Start();
 #endif
 
-            _dialog = new ProgressDialog(this);
-            _dialog.SetMessage("Fetching data from Microsoft Azure...");
+            _progressDialog = new ProgressDialog(this);
 
             if (!IsConnected())
             {
@@ -104,20 +93,17 @@ namespace Salla7ly
                 UiHelper.CreateAndShowDialog(this,
                     $"Created by Ahmed Hamdy Mahmoud,{System.Environment.NewLine}" +
                     $"MSP - 2015/2016{System.Environment.NewLine}" +
-                $"Email: ahmedhamdyau@gmail.com, address: Block No. 133 - Smouha, Alexandria, Egypt{System.Environment.NewLine}Thanks!", "Info");
+                    "Email: ahmedhamdy.mahmoud@studentpartner.com," +
+                    $" Address: Smouha, Alexandria, Egypt{System.Environment.NewLine}Thanks!", "Info");
             }
             else if (item.ItemId == Resource.Id.menu_add_technician)
             {
-                Task authorize = new Task(async () =>
+                Task.Run(async () =>
                 {
-                    //Add a new technician directly if authenticated.
-                    if (_authenticated)
+                    if (!_authenticated)
                     {
-                        AddTechnician();
-                        return;
+                        _authenticated = await Authenticate();
                     }
-
-                    _authenticated = await Authenticate();
                     if (_authenticated)
                     {
                         AddTechnician();
@@ -127,7 +113,6 @@ namespace Salla7ly
                         RunOnUiThread(() => UiHelper.MakeToast(this, "Please login to add a technician"));
                     }
                 });
-                authorize.Start();
             }
 
             return true;
@@ -149,18 +134,19 @@ namespace Salla7ly
         public async void FindTechnicainByField(View view)
         {
             string fieldName = _fieldSpinner.SelectedItem.ToString();
+
             _searchButton.Enabled = false;
-            _dialog.Show();
+            ShowProgressDialog(IsConnected() ? "Fetching from Microsoft Azure..." : "Searching local store...");
+
             if (!_syncContextInitialized)
             {
                 _syncContextInitialized = true;
                 await Task.Run(async () => await _techDb.StartDb());
-
             }
 
             var result = await _techDb.Find(fieldName);
             _searchButton.Enabled = true;
-            _dialog.Dismiss();
+            HideProgressDialog();
 
             if (result.Count == 0)
             {
@@ -171,12 +157,9 @@ namespace Salla7ly
             DisplayItemsInListView(result);
         }
 
-
         [Export]
-        public void TestMethod(View view)
+        public void OpenPopupMenu(View view)
         {
-            // Menu button
-
             // Hide soft keyboard if it's open
             InputMethodManager inputManager = (InputMethodManager)this.GetSystemService(Context.InputMethodService);
             var currentFocus = this.CurrentFocus;
@@ -226,15 +209,15 @@ namespace Salla7ly
             }
         }
 
-        void ShowProgressDialog(string text)
+        private void ShowProgressDialog(string text)
         {
-            _dialog.SetMessage(text);
-            RunOnUiThread(() => _dialog.Show());
+            _progressDialog.SetMessage(text);
+            RunOnUiThread(() => _progressDialog.Show());
         }
 
-        void HideProgressDialog()
+        private void HideProgressDialog()
         {
-            RunOnUiThread(() => _dialog.Dismiss());
+            RunOnUiThread(() => _progressDialog.Dismiss());
         }
 
         private async Task<bool> Authenticate()
@@ -244,7 +227,6 @@ namespace Salla7ly
             {
                 // Sign in with Facebook login using a server-managed flow.
                 _user = await _techDb.Client.LoginAsync(this, MobileServiceAuthenticationProvider.Facebook);
-                //StaticHelper.CreateAndShowDialog(string.Format("you are now logged in"), "Logged in!");
                 success = true;
             }
             catch (Exception)
